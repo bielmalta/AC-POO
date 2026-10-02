@@ -2,6 +2,7 @@ package br.edu.cs.poo.ac.seguro.entidades;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.io.Serializable;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class Sinistro {
+public class Sinistro implements Serializable{
     private String numero;
     private Veiculo veiculo;
     private LocalDateTime dataHoraSinistro;

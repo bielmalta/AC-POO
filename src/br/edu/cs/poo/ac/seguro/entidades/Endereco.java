@@ -1,6 +1,8 @@
 package br.edu.cs.poo.ac.seguro.entidades;
 
-public class Endereco {
+import java.io.Serializable;
+
+public class Endereco implements Serializable{
     private String logradouro;   // ATRIBUTOS DA CLASSE 
     private String cep;
     private String numero;      // PRIVATE POIS SÓ A PRÓPRIA CLASSE ENXERGA ESSE DADO DIRETAMENTE, QUEM TÁ DE FORA TEM QUE PASSAR PELO GET/SET, ISSO É ENCAPSULAMENTO

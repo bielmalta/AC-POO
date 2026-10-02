@@ -3,8 +3,9 @@ package br.edu.cs.poo.ac.seguro.entidades;
 import java.math.BigDecimal;    // NUMERO DECIMAL EXATO
 import java.time.LocalDate;     //DATA
 import java.time.Period;        //CALCULA A DIFERENÇA DE DATAS
+import java.io.Serializable;
 
-public class Segurado {
+public class Segurado implements Serializable{
     private String nome;
     private Endereco endereco;
     private LocalDate dataCriacao;
