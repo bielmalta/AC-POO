@@ -2,8 +2,23 @@ package br.edu.cs.poo.ac.seguro.telas;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
-public class TelaSeguradoEmpresa extends JFrame {
+import br.edu.cs.poo.ac.seguro.entidades.Endereco;
+import br.edu.cs.poo.ac.seguro.entidades.SeguradoEmpresa;
+import br.edu.cs.poo.ac.seguro.mediators.SeguradoEmpresaMediator;
+
+public class TelaSeguradoEmpresa extends JFrame implements ActionListener {
+
+    private static final String[] ESTADOS = {"AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
+            "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"};
+    private static final DateTimeFormatter FORMATO_DATA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+    private SeguradoEmpresaMediator mediator = SeguradoEmpresaMediator.getInstancia();
 
     private JTextField campoNome;
     private JTextField campoCnpj;
@@ -16,7 +31,7 @@ public class TelaSeguradoEmpresa extends JFrame {
     private JTextField campoNumero;
     private JTextField campoComplemento;
     private JTextField campoPais;
-    private JTextField campoEstado;
+    private JComboBox<String> campoEstado;
     private JTextField campoCidade;
 
     private JRadioButton radioSim;
@@ -48,7 +63,7 @@ public class TelaSeguradoEmpresa extends JFrame {
         campoCnpj = new JTextField();
         painel.add(campoCnpj);
 
-        painel.add(new JLabel("Data de abertura:"));
+        painel.add(new JLabel("Data de abertura (dd/mm/aaaa):"));
         campoDataAbertura = new JTextField();
         painel.add(campoDataAbertura);
 
@@ -66,6 +81,7 @@ public class TelaSeguradoEmpresa extends JFrame {
 
         radioSim = new JRadioButton("Sim");
         radioNao = new JRadioButton("Não");
+        radioNao.setSelected(true);
 
         grupoLocadora = new ButtonGroup();
         grupoLocadora.add(radioSim);
@@ -97,7 +113,7 @@ public class TelaSeguradoEmpresa extends JFrame {
         painel.add(campoPais);
 
         painel.add(new JLabel("Estado:"));
-        campoEstado = new JTextField();
+        campoEstado = new JComboBox<>(ESTADOS);
         painel.add(campoEstado);
 
         painel.add(new JLabel("Cidade:"));
@@ -115,9 +131,125 @@ public class TelaSeguradoEmpresa extends JFrame {
         painel.add(botaoAtualizar);
         painel.add(botaoExcluir);
 
+        botaoCadastrar.addActionListener(this);
+        botaoBuscar.addActionListener(this);
+        botaoAtualizar.addActionListener(this);
+        botaoExcluir.addActionListener(this);
+
         add(painel);
 
         setVisible(true);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == botaoCadastrar) {
+            cadastrar();
+        } else if (e.getSource() == botaoBuscar) {
+            buscar();
+        } else if (e.getSource() == botaoAtualizar) {
+            atualizar();
+        } else if (e.getSource() == botaoExcluir) {
+            excluir();
+        }
+    }
+
+    private void cadastrar() {
+        SeguradoEmpresa seg = montarSegurado();
+        if (seg != null) {
+            mostrarResultado(mediator.incluirSeguradoEmpresa(seg), "Segurado cadastrado com sucesso");
+        }
+    }
+
+    private void atualizar() {
+        SeguradoEmpresa seg = montarSegurado();
+        if (seg != null) {
+            mostrarResultado(mediator.alterarSeguradoEmpresa(seg), "Segurado atualizado com sucesso");
+        }
+    }
+
+    private void excluir() {
+        String msg = mediator.excluirSeguradoEmpresa(campoCnpj.getText().trim());
+        mostrarResultado(msg, "Segurado excluído com sucesso");
+        if (msg == null) {
+            limparCampos();
+        }
+    }
+
+    private void buscar() {
+        SeguradoEmpresa seg = mediator.buscarSeguradoEmpresa(campoCnpj.getText().trim());
+        if (seg == null) {
+            JOptionPane.showMessageDialog(this, "Segurado não encontrado");
+            return;
+        }
+        campoNome.setText(seg.getNome());
+        campoFaturamento.setText(String.valueOf(seg.getFaturamento()));
+        campoBonus.setText(seg.getBonus() == null ? "" : seg.getBonus().toString());
+        campoDataAbertura.setText(seg.getDataAbertura() == null ? "" : seg.getDataAbertura().format(FORMATO_DATA));
+        if (seg.isEhLocadoraDeVeiculos()) {
+            radioSim.setSelected(true);
+        } else {
+            radioNao.setSelected(true);
+        }
+        Endereco end = seg.getEndereco();
+        if (end != null) {
+            campoLogradouro.setText(end.getLogradouro());
+            campoCep.setText(end.getCep());
+            campoNumero.setText(end.getNumero());
+            campoComplemento.setText(end.getComplemento());
+            campoPais.setText(end.getPais());
+            campoEstado.setSelectedItem(end.getEstado());
+            campoCidade.setText(end.getCidade());
+        }
+    }
+
+    private SeguradoEmpresa montarSegurado() {
+        LocalDate dataAbertura = null;
+        if (!campoDataAbertura.getText().trim().isEmpty()) {
+            try {
+                dataAbertura = LocalDate.parse(campoDataAbertura.getText().trim(), FORMATO_DATA);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Data de abertura deve estar no formato dd/mm/aaaa");
+                return null;
+            }
+        }
+        double faturamento;
+        BigDecimal bonus;
+        try {
+            faturamento = Double.parseDouble(campoFaturamento.getText().trim().replace(",", "."));
+            String textoBonus = campoBonus.getText().trim().replace(",", ".");
+            bonus = textoBonus.isEmpty() ? BigDecimal.ZERO : new BigDecimal(textoBonus);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Faturamento e bônus devem ser números");
+            return null;
+        }
+        Endereco endereco = new Endereco(campoLogradouro.getText(), campoCep.getText(), campoNumero.getText(),
+                campoComplemento.getText(), campoPais.getText(), (String) campoEstado.getSelectedItem(),
+                campoCidade.getText());
+        return new SeguradoEmpresa(campoNome.getText(), endereco, dataAbertura, bonus,
+                campoCnpj.getText().trim(), faturamento, radioSim.isSelected());
+    }
+
+    private void mostrarResultado(String msgErro, String msgSucesso) {
+        if (msgErro == null) {
+            JOptionPane.showMessageDialog(this, msgSucesso);
+        } else {
+            JOptionPane.showMessageDialog(this, msgErro, "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void limparCampos() {
+        campoNome.setText("");
+        campoCnpj.setText("");
+        campoFaturamento.setText("");
+        campoDataAbertura.setText("");
+        campoBonus.setText("");
+        campoLogradouro.setText("");
+        campoCep.setText("");
+        campoNumero.setText("");
+        campoComplemento.setText("");
+        campoPais.setText("");
+        campoCidade.setText("");
+        radioNao.setSelected(true);
     }
 
     public static void main(String[] args) {
