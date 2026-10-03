@@ -1,61 +1,45 @@
 package br.edu.cs.poo.ac.seguro.entidades;
 
-import java.math.BigDecimal;    // NUMERO DECIMAL EXATO
-import java.time.LocalDate;     //DATA
-import java.time.Period;        //CALCULA A DIFERENÇA DE DATAS
-import java.io.Serializable;
+import java.math.BigDecimal; /*Precisa do LocalDate e do BigDecimal porque eles aparecem nos parametros do construtor.*/
+import java.time.LocalDate;
 
-public class Segurado implements Serializable{
-    private String nome;
-    private Endereco endereco;
-    private LocalDate dataCriacao;
-    private BigDecimal bonus;
+public class SeguradoPessoa extends Segurado { /*O extends e a heranca: o SeguradoPessoa e um Segurado.
+     Ele ganha automaticamente tudo o que o Segurado tem: nome, endereco, bonus, getIdade(), creditarBonus() etc.*/
 
-    public Segurado(String nome, Endereco endereco, LocalDate dataCriacao, BigDecimal bonus){
-        this.nome = nome;
-        this.endereco = endereco;
-        this.dataCriacao = dataCriacao;
-        this.bonus = bonus;
+    private String cpf;  
+    private double renda; //Os atributos que so pessoa fisica tem.
+
+    public SeguradoPessoa(String nome, Endereco endereco, LocalDate dataNascimento, BigDecimal bonus, String cpf, double renda) {
+        super(nome, endereco, dataNascimento, bonus); //chama o construtor do Segurado (a classe "m\u00e3e") e passa para ele os 4 valores que sao dele
+        /*O super(...) tem que ser a primeira linha do construtor. Ele e obrigatorio aqui, porque o Segurado nao tem um construtor vazio. */
+        this.cpf = cpf; 
+        this.renda = renda; //o construtor guarda o cpf e a renda nos atributos da propria classe.
     }
 
-    public String getNome(){
-        return nome;
+    //get/set de cpf e renda. Iguais aos do Endereco: leem e alteram os atributos.
+
+    public String getCpf() {
+        return cpf;
     }
 
-    public void setNome(String nome){
-        this.nome = nome;
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 
-    public Endereco getEndereco(){
-        return endereco;
+    public double getRenda() {
+        return renda;
     }
 
-    public void setEndereco(Endereco endereco){
-        this.endereco = endereco;
+    public void setRenda(double renda) {
+        this.renda = renda;
     }
 
-    protected LocalDate getDataCriacao(){
-        return dataCriacao;
+    public LocalDate getDataNascimento() {
+        return getDataCriacao();
     }
 
-    protected void setDataCriacao(LocalDate dataCriacao){
-        this.dataCriacao = dataCriacao;
+    public void setDataNascimento(LocalDate dataNascimento) {
+        setDataCriacao(dataNascimento);  //O SeguradoPessoa nao pode acessar dataCriacao direto, porque o atributo e private no Segurado. 
+        // Por isso usa os metodos protegidos.
     }
-
-    public BigDecimal getBonus(){
-        return bonus;
-    }
-
-    public int getIdade(){
-        return Period.between(dataCriacao, LocalDate.now()).getYears();
-    }
-
-    public void creditarBonus(BigDecimal valor){
-        bonus = bonus.add(valor);
-    }
-
-    public void debitarBonus(BigDecimal valor){
-        bonus = bonus.subtract(valor);
-    }
-
 }

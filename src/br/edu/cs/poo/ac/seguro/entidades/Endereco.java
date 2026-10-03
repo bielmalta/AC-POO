@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class Endereco implements Serializable{
     private String logradouro;   // ATRIBUTOS DA CLASSE 
     private String cep;
-    private String numero;      // PRIVATE POIS SÓ A PRÓPRIA CLASSE ENXERGA ESSE DADO DIRETAMENTE, QUEM TÁ DE FORA TEM QUE PASSAR PELO GET/SET, ISSO É ENCAPSULAMENTO
+    private String numero;      // PRIVATE POIS SO A PROPRIA CLASSE ENXERGA ESSE DADO DIRETAMENTE, QUEM TA DE FORA TEM QUE PASSAR PELO GET/SET, ISSO E ENCAPSULAMENTO
     private String complemento;
     private String pais;
     private String estado;
@@ -14,16 +14,16 @@ public class Endereco implements Serializable{
             String cidade) {
         this.logradouro = logradouro;
         this.cep = cep;
-        this.numero = numero;       // CONSTRUTOR: É CHAMADO QUANDO ALGUÉM FAZ new Endereco(...), E TEM O MESMO NOME DA CLASSE
+        this.numero = numero;       // CONSTRUTOR: E CHAMADO QUANDO ALGUEM FAZ new Endereco(...), E TEM O MESMO NOME DA CLASSE
         this.complemento = complemento;
         this.pais = pais;
         this.estado = estado;
         this.cidade = cidade;
     }
-    public String getLogradouro() {         // GET PERMITE LER O VALOR FORA DA CLASSE, E PUBLIC É PRA QUALQUER CLASSE CHAMAR
+    public String getLogradouro() {         // GET PERMITE LER O VALOR FORA DA CLASSE, E PUBLIC E PRA QUALQUER CLASSE CHAMAR
         return logradouro;
     }
-    public void setLogradouro(String logradouro) {      // SET PERMITE ALTERAR O VALOR DE FORA DA CLASSE E VOID NÃO DEVOLVE NADA
+    public void setLogradouro(String logradouro) {      // SET PERMITE ALTERAR O VALOR DE FORA DA CLASSE E VOID NAO DEVOLVE NADA
         this.logradouro = logradouro;
     }
     public String getCep() {
